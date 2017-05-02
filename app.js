@@ -27,7 +27,7 @@ var MongoClient = require('mongodb').MongoClient
   , assert = require('assert');
 
 // Connection URL
-var url = process.env.process.env.MONGOLAB_URI;
+var url = process.env.MONGOLAB_URI;
 
 
 // Use connect method to connect to the server
