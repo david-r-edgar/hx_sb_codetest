@@ -1,76 +1,168 @@
 'use strict';
-/*
- 'use strict' is not required but helpful for turning syntactical errors into true errors in the program flow
- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Strict_mode
-*/
 
-/*
- Modules make it possible to import JavaScript files into your application.  Modules are imported
- using 'require' statements that give you a reference to the module.
-
-  It is a good idea to list the modules that your application depends on in the package.json in the project root
- */
 var util = require('util');
 
 var userModel = require('../../models/user')
 
-var nextId = 0;
-
-
-/*
- Once you 'require' a module you can reference the things that it exports.  These are defined in module.exports.
-
- For a controller in a127 (which this is) you should export the functions referenced in your Swagger document by name.
-
- Either:
-  - The HTTP Verb of the corresponding operation (get, put, post, delete, etc)
-  - Or the operationId associated with the operation in your Swagger document
-
-  In the starter/skeleton project the 'get' operation on the '/hello' path has an operationId named 'hello'.  Here,
-  we specify that in the exports of this module that 'hello' maps to the function named 'hello'
- */
+//routes (keys are operationIds defined in swagger)
 module.exports = {
   getUser: getUser,
-  addUser: addUser
+  addUser: addUser,
+  updateUser: updateUser,
+  deleteUser: deleteUser,
+  listUsers: listUsers
 };
 
-/*
-  Functions in a127 controllers used for operations should take two parameters:
-
-  Param 1: a handle to the request object
-  Param 2: a handle to the response object
+/**
+ * Handles the GET /user request
+ *
+ * @param {object} req The request object
+ * @param {object} res The result object
  */
 function getUser(req, res) {
-  // variables defined in the Swagger document can be referenced using req.swagger.params.{parameter_name}
-  var requestedUserId = req.swagger.params.id;
-  console.log(requestedUserId.value);
+  var requestedUserId = req.swagger.params.id.value;
 
-  var user = userModel.getUser(requestedUserId.value);
-
-  // this sends back a JSON response which is a single string
-  res.json(user);
+  if (!validateId(requestedUserId)) {
+      res.statusMessage = "Invalid ID";
+      res.status(400).end();
+  } else {
+    userModel.getUser(requestedUserId, function(user) {
+        res.json(user);
+    }, function() {
+      res.statusMessage = "User not found";
+      res.status(404).end();
+    });
+  }
 }
 
+/**
+ * Handles the POST /user request
+ *
+ * @param {object} req The request object
+ * @param {object} res The result object
+ */
 function addUser(req, res) {
-  console.log(req.swagger.params.user.value);
+  //basic validation
+  //TODO we should really check that forename and surname are composed of
+  //alphabetic characters (perhaps allowing for UTF-8 non-Latin characters?)
+  //TODO and we could give more helpful error information
+  if ((!req.swagger.params.user.value.email) ||
+      (!req.swagger.params.user.value.forename) ||
+      (!req.swagger.params.user.value.surname) ||
+      (!validateEmail(req.swagger.params.user.value.email)) ||
+      (req.swagger.params.user.value.forename.length < 3) ||
+      (req.swagger.params.user.value.surname.length < 3)) {
 
-  //FIXME validate email, forename, surname
+    res.statusMessage = "Invalid parameter";
+    res.status(400).end();
+  }
+  else {
 
-  var user = userModel.addUser(req.swagger.params.user.value);
+    //FIXME email should be unique
 
-  res.location("/user/" + user.id)
-  //return the entire updated object
-  res.json(user)
+    userModel.addUser(req.swagger.params.user.value, function(user) {
 
-  res.status(200).end()
+      res.location("/user/" + user.id)
+      //return the entire updated object
+      res.json(user);
+      res.status(200).end();
+    }, function() {
+      res.statusMessage = "User cannot be added";
+      res.status(400).end();
+    });
+  }
 }
 
-function editUser(req, res) {
-
-
+/**
+ * Handles the PUT /user/{id} request
+ *
+ * @param {object} req The request object
+ * @param {object} res The result object
+ */
+function updateUser(req, res) {
+  //basic validation
+  var requestedUserId = req.swagger.params.id.value;
+  if ((req.swagger.params.user.value.email &&
+        !validateEmail(req.swagger.params.user.value.email)) ||
+      (req.swagger.params.user.value.forename
+        && req.swagger.params.user.value.forename.length < 3) ||
+      (req.swagger.params.user.value.surname
+        && req.swagger.params.user.value.surname.length < 3)) {
+    res.statusMessage = "Invalid parameter";
+    res.status(400).end();
+  } else if (!validateId(requestedUserId)) {
+    res.statusMessage = "Invalid ID";
+    res.status(400).end();
+  } else {
+    userModel.updateUser(req.swagger.params.id.value,
+                         req.swagger.params.user.value,
+                         function(user) {
+      res.json(user);
+      res.status(200).end();
+    }, function() {
+      res.statusMessage = "User not found";
+      res.status(404).end();
+    });
+  }
 }
 
+/**
+ * Handles the DELETE /user/{id} request
+ *
+ * @param {object} req The request object
+ * @param {object} res The result object
+ */
 function deleteUser(req, res) {
+  var requestedUserId = req.swagger.params.id.value;
+  if (!validateId(requestedUserId)) {
+    res.statusMessage = "Invalid ID";
+    res.status(400).end();
+  } else {
+    userModel.deleteUser(requestedUserId, function(user) {
+        res.json({message: "deleted user " + requestedUserId});
+        res.status(200).end();
+      }, function() {
+      res.statusMessage = "User not found";
+      res.status(404).end();
+    });
+  }
+}
+
+/**
+ * Handles the GET /users request
+ *
+ * @param {object} req The request object
+ * @param {object} res The result object
+ */
+
+//TODO email should be urlencoded
+
+function listUsers(req, res) {
+  var filter = {}
+  if (req.swagger.params.filterEmail.value !== undefined) {
+    filter.email = req.swagger.params.filterEmail.value;
+  }
+  if (req.swagger.params.filterForename.value !== undefined) {
+    filter.forename = req.swagger.params.filterForename.value;
+  }
+  if (req.swagger.params.filterSurname.value !== undefined) {
+    filter.surname = req.swagger.params.filterSurname.value;
+  }
+  userModel.listUsers(filter, function(users) {
+    res.json(users);
+    res.status(200).end();
+  });
+}
 
 
+//I didn't write this, just copied from stackoverflow.
+//It's not bulletproof / 100% correct...
+function validateEmail(email) {
+  var re = /^[a-z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)?@[a-z][a-zA-Z-0-9]*\.[a-z]+(\.[a-z]+)?$/;
+  return re.test(email);
+}
+
+function validateId(id) {
+  var re = /^[0-9a-fA-F]{24}$/;
+  return re.test(id);
 }
