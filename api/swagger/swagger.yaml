@@ -154,5 +154,8 @@ definitions:
     items:
       $ref: '#/definitions/User'
   UserApiResponse:
-    type: string
+    type: object
+    properties:
+      message:
+        type: string
 
