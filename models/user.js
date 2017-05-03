@@ -116,7 +116,7 @@ MongoClient.connect(process.env.MONGOLAB_URI, function(err, db) {
    */
   exports.listUsers = function(filter, callback) {
     userCollection.find(filter).toArray(function(err, users) {
-      for(user of users) {
+      for(var user of users) {
         renameId(user);
       }
       callback(users);

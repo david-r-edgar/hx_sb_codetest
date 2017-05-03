@@ -39,8 +39,6 @@ paths:
     delete:
       description: "Deletes the user with the specified id"
       operationId: "deleteUser"
-      produces:
-      - "application/json"
       parameters:
         - name: "id"
           in: path
@@ -55,6 +53,8 @@ paths:
     put:
       description: "User details will be updated for the given user id"
       operationId: "updateUser"
+      produces:
+      - "application/json"
       parameters:
         - name: "id"
           in: path
@@ -79,6 +79,8 @@ paths:
     post:
       description: "Adds a new user"
       operationId: "addUser"
+      produces:
+      - "application/json"
       parameters:
         - name: "user"
           in: body
@@ -103,6 +105,8 @@ paths:
     get:
       description: "Returns a list of users, optionally filtered by field values"
       operationId: "listUsers"
+      produces:
+      - "application/json"
       parameters:
         - name: "filterEmail"
           in: query
@@ -126,20 +130,20 @@ paths:
             $ref: "#/definitions/UserList"
 definitions:
   User:
-    type: "object"
+    type: object
     properties:
       id:
-        type: "string"
+        type: string
         readOnly: true
       email:
-        type: "string"
+        type: string
       forename:
-        type: "string"
+        type: string
       surname:
-        type: "string"
+        type: string
       created:
-        type: "string"
-        format: "date-time"
+        type: string
+        format: date-time
         readOnly: true
   UserList:
     type: array

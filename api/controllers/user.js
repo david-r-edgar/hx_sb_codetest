@@ -55,7 +55,7 @@ function addUser(req, res) {
       (req.swagger.params.user.value.surname.length < 3)) {
 
     res.statusMessage = "Invalid parameter";
-    res.status(400).end();
+    res.status(400).end({ error: 'Invalid parameter' });
   }
   else {
     userModel.addUser(req.swagger.params.user.value, function(user) {
