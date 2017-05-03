@@ -1,3 +1,4 @@
+'use strict';
 
 var assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
@@ -17,7 +18,6 @@ MongoClient.connect(process.env.MONGOLAB_URI, function(err, db) {
    * @param {function} failure Function called if user cannot be found
    */
   exports.getUser = function(id, success, failure) {
-
     userCollection.find({'_id': ObjectID(id)}).toArray(function(err, users) {
       if (users.length >= 1) {
         renameId(users[0]);
@@ -30,6 +30,10 @@ MongoClient.connect(process.env.MONGOLAB_URI, function(err, db) {
 
   /**
    * Adds a new user
+   *
+   * @todo We should enforce a unique email - most systems would not want
+   * two users with the same email, so we should really check this and reject
+   * requests with a previously-used email.
    *
    * @param {object} user User object. email, forename and surname should be set
    * @param {function} success Called if adding is successful
@@ -78,7 +82,6 @@ MongoClient.connect(process.env.MONGOLAB_URI, function(err, db) {
    * @param {function} failure Called if modifying the user fails
    */
   exports.updateUser = function(id, user, success, failure) {
-
     userCollection.updateOne({'_id': ObjectID (id)},
                              {$set: user},
                              function(err, result) {
@@ -90,6 +93,7 @@ MongoClient.connect(process.env.MONGOLAB_URI, function(err, db) {
             success(users[0]);
           }
           else {
+            //should never reach here, as we know the item just updated should always be found
             failure();
           }
         });
@@ -120,6 +124,7 @@ MongoClient.connect(process.env.MONGOLAB_URI, function(err, db) {
 
   }
 
+  //only to satisfy the requirement to name the field 'id'
   var renameId = function(user) {
     user.id = user._id;
     delete user._id;

@@ -50,8 +50,6 @@ paths:
       responses:
         200:
           description: Success
-          schema:
-            $ref: "#/definitions/UserApiResponse"
         400:
           description: "Invalid ID"
     put:
@@ -147,9 +145,4 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/User'
-  UserApiResponse:
-    type: "object"
-    properties:
-      message:
-        type: "string"
 

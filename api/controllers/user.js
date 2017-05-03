@@ -1,6 +1,7 @@
 'use strict';
 
 var util = require('util');
+var validator = require('validator');
 
 var userModel = require('../../models/user')
 
@@ -57,9 +58,6 @@ function addUser(req, res) {
     res.status(400).end();
   }
   else {
-
-    //FIXME email should be unique
-
     userModel.addUser(req.swagger.params.user.value, function(user) {
 
       res.location("/user/" + user.id)
