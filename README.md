@@ -6,3 +6,8 @@ Built with swagger / node / express.
 Documented (and testable) with swagger at https://swaggerhub.com/apis/david-r-edgar/hx_sb_codetest/0.0.1
 
 API includes CRUD requests + a request to list users, optionally filtered on properties.
+
+## To do
+
+- Improve validation
+- Check for email uniqueness
