@@ -120,8 +120,8 @@ function deleteUser(req, res) {
         res.json({message: "deleted user " + requestedUserId});
         res.status(200).end();
       }, function() {
-      res.statusMessage = "User not found";
-      res.status(404).end();
+        res.statusMessage = "User not found";
+        res.status(404).end();
     });
   }
 }

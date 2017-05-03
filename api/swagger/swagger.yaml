@@ -39,6 +39,8 @@ paths:
     delete:
       description: "Deletes the user with the specified id"
       operationId: "deleteUser"
+      produces:
+      - "application/json"
       parameters:
         - name: "id"
           in: path
@@ -48,6 +50,8 @@ paths:
       responses:
         200:
           description: Success
+          schema:
+            $ref: "#/definitions/UserApiResponse"
         400:
           description: "Invalid ID"
     put:
@@ -149,4 +153,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/User'
+  UserApiResponse:
+    type: string
 
