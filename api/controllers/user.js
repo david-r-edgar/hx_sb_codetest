@@ -132,19 +132,16 @@ function deleteUser(req, res) {
  * @param {object} req The request object
  * @param {object} res The result object
  */
-
-//TODO email should be urlencoded
-
 function listUsers(req, res) {
   var filter = {}
   if (req.swagger.params.filterEmail.value !== undefined) {
-    filter.email = req.swagger.params.filterEmail.value;
+    filter.email = decodeURIComponent(req.swagger.params.filterEmail.value);
   }
   if (req.swagger.params.filterForename.value !== undefined) {
-    filter.forename = req.swagger.params.filterForename.value;
+    filter.forename = decodeURIComponent(req.swagger.params.filterForename.value);
   }
   if (req.swagger.params.filterSurname.value !== undefined) {
-    filter.surname = req.swagger.params.filterSurname.value;
+    filter.surname = decodeURIComponent(req.swagger.params.filterSurname.value);
   }
   userModel.listUsers(filter, function(users) {
     res.json(users);
