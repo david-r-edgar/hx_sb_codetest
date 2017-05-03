@@ -1,5 +1,7 @@
 'use strict';
 
+/** @todo Tidy up validation & error responses - should be functional, but isn't done in the right way */
+
 var util = require('util');
 var validator = require('validator');
 
@@ -117,11 +119,11 @@ function deleteUser(req, res) {
     res.status(400).end();
   } else {
     userModel.deleteUser(requestedUserId, function(user) {
-        res.json({message: "deleted user " + requestedUserId});
-        res.status(200).end();
-      }, function() {
-        res.statusMessage = "User not found";
-        res.status(404).end();
+      res.json({message: "deleted user " + requestedUserId});
+      res.status(200).end();
+    }, function() {
+      res.statusMessage = "User not found";
+      res.status(404).end();
     });
   }
 }
