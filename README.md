@@ -22,3 +22,4 @@ Documented (and testable) with swagger at https://swaggerhub.com/apis/david-r-ed
 
 - Allow non-Latin UTF-8 characters in email, forename and surname, to permit other languages
 - Check for email uniqueness
+- List user function filters should be case-insensitive
