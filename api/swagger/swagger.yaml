@@ -27,6 +27,7 @@ paths:
           description: "id of user to return"
           required: true
           type: string
+          pattern: ^[0-9a-fA-F]{24}$
       responses:
         200:
           description: Success
@@ -47,6 +48,7 @@ paths:
           description: "id of user to delete"
           required: true
           type: string
+          pattern: ^[0-9a-fA-F]{24}$
       responses:
         200:
           description: Success
@@ -65,12 +67,13 @@ paths:
           description: "id of user to update"
           required: true
           type: string
+          pattern: ^[0-9a-fA-F]{24}$
         - name: "user"
           in: body
           description: "User object containing email, forename and surname. All these fields are optional."
           required: false
           schema:
-            $ref: "#/definitions/User"
+            $ref: "#/definitions/UpdateUser"
       responses:
         200:
           description: "Success. Full user object returned in body."
@@ -115,16 +118,19 @@ paths:
         - name: "filterEmail"
           in: query
           type: string
+          pattern: ^[a-z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)?@[a-z][a-zA-Z-0-9]*\.[a-z]+(\.[a-z]+)?$
           description: "Only list the user with email exactly matching"
           required: false
         - name: "filterForename"
           in: query
           type: string
+          pattern: ^[a-zA-Z-\' ]*$
           description: "Only list users with forenames exactly matching"
           required: false
         - name: "filterSurname"
           in: query
           type: string
+          pattern: ^[a-zA-Z-\' ]*$
           description: "Only list users with surnames exactly matching"
           required: false
       responses:
@@ -139,12 +145,45 @@ definitions:
       id:
         type: string
         readOnly: true
+        pattern: ^[0-9a-fA-F]{24}$
       email:
         type: string
+        pattern: ^[a-z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)?@[a-z][a-zA-Z-0-9]*\.[a-z]+(\.[a-z]+)?$
       forename:
         type: string
+        minLength: 3
+        maxLength: 200
+        pattern: ^[a-zA-Z-\' ]*$
       surname:
         type: string
+        minLength: 3
+        maxLength: 200
+        pattern: ^[a-zA-Z-\' ]*$
+      created:
+        type: string
+        format: date-time
+        readOnly: true
+    required: ["email", "forename", "surname"]
+  UpdateUser:
+    type: object
+    properties:
+      id:
+        type: string
+        readOnly: true
+        pattern: ^[0-9a-fA-F]{24}$
+      email:
+        type: string
+        pattern: ^[a-z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)?@[a-z][a-zA-Z-0-9]*\.[a-z]+(\.[a-z]+)?$
+      forename:
+        type: string
+        minLength: 3
+        maxLength: 200
+        pattern: ^[a-zA-Z-\' ]*$
+      surname:
+        type: string
+        minLength: 3
+        maxLength: 200
+        pattern: ^[a-zA-Z-\' ]*$
       created:
         type: string
         format: date-time

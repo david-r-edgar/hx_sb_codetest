@@ -1,7 +1,5 @@
 'use strict';
 
-/** @todo Tidy up validation & error responses - should be functional, but isn't done in the right way */
-
 var util = require('util');
 var validator = require('validator');
 
@@ -24,18 +22,12 @@ module.exports = {
  */
 function getUser(req, res) {
   var requestedUserId = req.swagger.params.id.value;
-
-  if (!validateId(requestedUserId)) {
-      res.statusMessage = "Invalid ID";
-      res.status(400).end();
-  } else {
-    userModel.getUser(requestedUserId, function(user) {
-        res.json(user);
-    }, function() {
-      res.statusMessage = "User not found";
-      res.status(404).end();
-    });
-  }
+  userModel.getUser(requestedUserId, function(user) {
+      res.json(user);
+  }, function() {
+    res.statusMessage = "User not found";
+    res.status(404).end();
+  });
 }
 
 /**
@@ -45,32 +37,16 @@ function getUser(req, res) {
  * @param {object} res The result object
  */
 function addUser(req, res) {
-  //basic validation
-  //TODO we should really check that forename and surname are composed of
-  //alphabetic characters (perhaps allowing for UTF-8 non-Latin characters?)
-  //TODO and we could give more helpful error information
-  if ((!req.swagger.params.user.value.email) ||
-      (!req.swagger.params.user.value.forename) ||
-      (!req.swagger.params.user.value.surname) ||
-      (!validateEmail(req.swagger.params.user.value.email)) ||
-      (req.swagger.params.user.value.forename.length < 3) ||
-      (req.swagger.params.user.value.surname.length < 3)) {
+  userModel.addUser(req.swagger.params.user.value, function(user) {
 
-    res.statusMessage = "Invalid parameter";
-    res.status(400).end({ error: 'Invalid parameter' });
-  }
-  else {
-    userModel.addUser(req.swagger.params.user.value, function(user) {
-
-      res.location("/user/" + user.id)
-      //return the entire updated object
-      res.json(user);
-      res.status(200).end();
-    }, function() {
-      res.statusMessage = "User cannot be added";
-      res.status(400).end();
-    });
-  }
+    res.location("/user/" + user.id)
+    //return the entire updated object
+    res.json(user);
+    res.status(200).end();
+  }, function() {
+    res.statusMessage = "User cannot be added";
+    res.status(400).end();
+  });
 }
 
 /**
@@ -80,30 +56,16 @@ function addUser(req, res) {
  * @param {object} res The result object
  */
 function updateUser(req, res) {
-  //basic validation
   var requestedUserId = req.swagger.params.id.value;
-  if ((req.swagger.params.user.value.email &&
-        !validateEmail(req.swagger.params.user.value.email)) ||
-      (req.swagger.params.user.value.forename
-        && req.swagger.params.user.value.forename.length < 3) ||
-      (req.swagger.params.user.value.surname
-        && req.swagger.params.user.value.surname.length < 3)) {
-    res.statusMessage = "Invalid parameter";
-    res.status(400).end();
-  } else if (!validateId(requestedUserId)) {
-    res.statusMessage = "Invalid ID";
-    res.status(400).end();
-  } else {
-    userModel.updateUser(req.swagger.params.id.value,
-                         req.swagger.params.user.value,
-                         function(user) {
-      res.json(user);
-      res.status(200).end();
-    }, function() {
-      res.statusMessage = "User not found";
-      res.status(404).end();
-    });
-  }
+  userModel.updateUser(req.swagger.params.id.value,
+                       req.swagger.params.user.value,
+                       function(user) {
+    res.json(user);
+    res.status(200).end();
+  }, function() {
+    res.statusMessage = "User not found";
+    res.status(404).end();
+  });
 }
 
 /**
@@ -114,18 +76,14 @@ function updateUser(req, res) {
  */
 function deleteUser(req, res) {
   var requestedUserId = req.swagger.params.id.value;
-  if (!validateId(requestedUserId)) {
-    res.statusMessage = "Invalid ID";
-    res.status(400).end();
-  } else {
-    userModel.deleteUser(requestedUserId, function(user) {
-      res.json({message: "deleted user " + requestedUserId});
-      res.status(200).end();
-    }, function() {
-      res.statusMessage = "User not found";
-      res.status(404).end();
-    });
-  }
+
+  userModel.deleteUser(requestedUserId, function(user) {
+    res.json({message: "deleted user " + requestedUserId});
+    res.status(200).end();
+  }, function() {
+    res.statusMessage = "User not found";
+    res.status(404).end();
+  });
 }
 
 /**
@@ -149,17 +107,4 @@ function listUsers(req, res) {
     res.json(users);
     res.status(200).end();
   });
-}
-
-
-//I didn't write this, just copied from stackoverflow.
-//It's not bulletproof / 100% correct...
-function validateEmail(email) {
-  var re = /^[a-z][a-zA-Z0-9_.]*(\.[a-zA-Z][a-zA-Z0-9_.]*)?@[a-z][a-zA-Z-0-9]*\.[a-z]+(\.[a-z]+)?$/;
-  return re.test(email);
-}
-
-function validateId(id) {
-  var re = /^[0-9a-fA-F]{24}$/;
-  return re.test(id);
 }
