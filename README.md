@@ -5,9 +5,9 @@ An API to manage a user persistence layer.
 The user model has the following attributes:
 
 **id** - *A unique user id*  
-**email** - *A users email address*  
-**forename** - *A users first name* (3-200 characters, `[a-zA-Z\'- ]`)  
-**surname** - *A users last name* (3-200 characters, `[a-zA-Z\'- ]`)  
+**email** - *A user's email address*  
+**forename** - *A user's first name* (3-200 characters, `[a-zA-Z\'- ]`)  
+**surname** - *A user's last name* (3-200 characters, `[a-zA-Z\'- ]`)  
 **created** - *The date and time the user was added*  
 
 The API exposes functionality to create, read, update and delete (CRUD) models, and also includes a request to list users, optionally filtered on properties.
